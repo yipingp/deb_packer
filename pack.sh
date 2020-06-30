@@ -37,7 +37,7 @@ echo "#!/bin/sh" >> $PACK_DIR/$EXE.sh
 echo "# Set installation directory" >> $PACK_DIR/$EXE.sh
 echo "DIR="$INSTALL_DIR"" >> $PACK_DIR/$EXE.sh
 echo "# Add shared library path" >> $PACK_DIR/$EXE.sh
-echo "LD_LIBRARY_PATH=\$DIR/lib" >> $PACK_DIR/$EXE.sh
+echo "LD_LIBRARY_PATH=\$DIR" >> $PACK_DIR/$EXE.sh
 echo "export LD_LIBRARY_PATH" >> $PACK_DIR/$EXE.sh
 echo "# \"\$@\" Parameters" >> $PACK_DIR/$EXE.sh
 echo "\$DIR/bin/$EXE \"\$@\" " >> $PACK_DIR/$EXE.sh
