@@ -4,6 +4,12 @@ EXE="useQt" # Executable file from your source code
 ICON_NAME="Recognition" # Name of icon in applications
 PACK_DIR="/home/username/Desktop/$ICON_NAME" # The output directory of packing
 INSTALL_DIR="/opt/$ICON_NAME" # The installation directory of deb package
+# Qt plugins and lib
+QT_PARENT_PATH="/opt"
+Qt_FOLDER="Qt5.14.2"
+QT_PLUGIN="$Qt_FOLDER/5.14.2/gcc_64/plugins"
+QT_LIB="$Qt_FOLDER/5.14.2/gcc_64/lib"
+
 
 VERSION_MAJOR="1"
 VERSION_MINOR="0"
@@ -31,14 +37,26 @@ cp -r ./config $PACK_DIR
 # Copy icon.jpg
 cp ./icon.jpg $PACK_DIR
 
+# Copy Qt plugins and lib
+QT_PLUGIN_PATH=$QT_PARENT_PATH/$QT_PLUGIN
+mkdir -p $PACK_DIR/$QT_PLUGIN
+cp -r $QT_PLUGIN_PATH/* $PACK_DIR/$QT_PLUGIN
+
+QT_LIB_PATH=$QT_PARENT_PATH/$QT_LIB
+mkdir -p $PACK_DIR/$QT_LIB
+cp -r $QT_LIB_PATH/* $PACK_DIR/$QT_LIB
+
 ################      Generate $EXE.sh       ####################
 gedit $PACK_DIR/$EXE.sh
 echo "#!/bin/sh" >> $PACK_DIR/$EXE.sh
 echo "# Set installation directory" >> $PACK_DIR/$EXE.sh
 echo "DIR="$INSTALL_DIR"" >> $PACK_DIR/$EXE.sh
 echo "# Add shared library path" >> $PACK_DIR/$EXE.sh
-echo "LD_LIBRARY_PATH=\$DIR" >> $PACK_DIR/$EXE.sh
+echo "LD_LIBRARY_PATH=\$DIR/lib" >> $PACK_DIR/$EXE.sh
+echo "# Add Qt plugins path" >> $PACK_DIR/$EXE.sh
+echo "QT_PLUGIN_PATH=$QT_PLUGIN_PATH" >> $PACK_DIR/$EXE.sh
 echo "export LD_LIBRARY_PATH" >> $PACK_DIR/$EXE.sh
+echo "export QT_PLUGIN_PATH" >> $PACK_DIR/$EXE.sh
 echo "# \"\$@\" Parameters" >> $PACK_DIR/$EXE.sh
 echo "\$DIR/bin/$EXE \"\$@\" " >> $PACK_DIR/$EXE.sh
 
@@ -73,15 +91,15 @@ echo "file(GLOB bins "bin/*")" >> $PACK_DIR/CMakeLists.txt
 echo "file(GLOB config "config/config.yaml")" >> $PACK_DIR/CMakeLists.txt
 echo "file(GLOB obj "config/obj/*")" >> $PACK_DIR/CMakeLists.txt
 echo "file(GLOB libs "lib/*")" >> $PACK_DIR/CMakeLists.txt
+echo "file(GLOB qt_plugins_lib "$Qt_FOLDER")" >> $PACK_DIR/CMakeLists.txt
 echo "" >> $PACK_DIR/CMakeLists.txt
 
 echo "install (FILES \${bins} DESTINATION $INSTALL_DIR/bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
 echo "install (FILES \${config} DESTINATION $INSTALL_DIR/config PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
 echo "install (FILES \${obj} DESTINATION $INSTALL_DIR/config/obj PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
 echo "install (FILES \${libs} DESTINATION $INSTALL_DIR/lib PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
+echo "install (DIRECTORY \${qt_plugins_lib} DESTINATION $QT_PARENT_PATH)" >> $PACK_DIR/CMakeLists.txt
 echo "install (FILES "$EXE.sh" DESTINATION $INSTALL_DIR PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
 echo "install (FILES "$ICON_NAME.desktop" DESTINATION /usr/share/applications PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
 echo "install (FILES "icon.jpg" DESTINATION $INSTALL_DIR PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_WRITE WORLD_EXECUTE)" >> $PACK_DIR/CMakeLists.txt
 echo "include(CPack)" >> $PACK_DIR/CMakeLists.txt
-
-
